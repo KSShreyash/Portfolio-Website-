@@ -1,34 +1,53 @@
 import type { Metadata } from "next";
-import { Cinzel, Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { siteConfig } from "@/config/site";
 import { SplashScreen } from "@/components/splash/SplashScreen";
 import "./globals.css";
 
-const cinzel = Cinzel({
+/*
+ * Self-hosted rather than `next/font/google`.
+ *
+ * The Google loader downloads font files during the build, which makes the
+ * build depend on the network — and that is exactly what broke the first
+ * Cloudflare Pages deploy, with twelve unresolvable-module errors on
+ * JetBrains Mono inside Turbopack. The files now live in ./fonts, so builds
+ * are deterministic, offline, and faster. Re-run scripts/fetch_fonts.py only
+ * when the typefaces change.
+ *
+ * Each of these is a single variable woff2 covering its whole weight range,
+ * Latin subset only.
+ */
+const cinzel = localFont({
+  src: "./fonts/cinzel.woff2",
   variable: "--font-cinzel",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: "400 600",
   display: "swap",
 });
 
-const cormorant = Cormorant_Garamond({
+const cormorant = localFont({
+  src: [
+    { path: "./fonts/cormorant-garamond.woff2", weight: "400 600", style: "normal" },
+    {
+      path: "./fonts/cormorant-garamond-italic.woff2",
+      weight: "400 500",
+      style: "italic",
+    },
+  ],
   variable: "--font-cormorant",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
-const inter = Inter({
+const inter = localFont({
+  src: "./fonts/inter.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
+  weight: "400 700",
   display: "swap",
 });
 
-const jetbrains = JetBrains_Mono({
+const jetbrains = localFont({
+  src: "./fonts/jetbrains-mono.woff2",
   variable: "--font-jetbrains",
-  subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: "400 500",
   display: "swap",
 });
 

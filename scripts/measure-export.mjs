@@ -102,6 +102,9 @@ for (const [label, width, height, dpr] of [
   await page.goto(`${ORIGIN}/`, { waitUntil: "domcontentloaded", timeout: 45_000 });
   await new Promise((r) => setTimeout(r, 6500));
 
+  if (process.env.SHOT) {
+    await page.screenshot({ path: `shots/export-${width}.png` });
+  }
   const kb = (n) => `${(n / 1024).toFixed(0)} KB`;
   const total = Object.values(bytes).reduce((a, b) => a + b, 0);
   console.log(

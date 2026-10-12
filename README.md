@@ -162,6 +162,19 @@ Cloudflare Pages settings:
 | Output directory | `out` |
 | Env var | `NODE_VERSION` = `22` |
 
+### Fonts
+
+Self-hosted in `src/app/fonts` via `next/font/local`, not `next/font/google`.
+
+The Google loader downloads font files *during the build*, which makes the
+build depend on the network — and that is what broke the first Cloudflare
+deploy, with twelve unresolvable-module errors on JetBrains Mono inside
+Turbopack. Builds are now deterministic and offline.
+
+Each file is one variable woff2 covering its whole weight range, Latin subset
+only: 5 files, 178 KB, down from the 26 files the Google loader was pulling.
+Re-run `python scripts/fetch_fonts.py` only if the typefaces change.
+
 ### Images without an optimiser
 
 A static host cannot run Next's image optimiser — it needs `sharp`, a native
