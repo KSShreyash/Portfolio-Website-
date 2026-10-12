@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "portfolio-website",
+  "compatibility_date": "2026-10-06",
+
+  // Static assets only — there is no `main`, so no Worker script runs and no
+  // request ever hits compute. `next build` writes ./out; everything the site
+  // needs is in there.
+  //
+  // This file also stops Wrangler from auto-configuring the project. Without
+  // it, `wrangler deploy` detects "Next.js", assumes a server build in .next,
+  // and installs the OpenNext adapter — which then fails looking for
+  // .next/standalone, a directory a static export never produces.
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

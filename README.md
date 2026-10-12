@@ -154,13 +154,31 @@ Set `CHROME_PATH` if Chrome is somewhere non-standard.
 The site is a **static export** — `npm run build` writes `out/`, which any
 static host can serve. There is no server, no API routes and no runtime.
 
-Cloudflare Pages settings:
+`wrangler.jsonc` declares it as a **static-assets Worker**: there is no
+`main`, so no Worker script runs and no request ever reaches compute.
+
+That file also exists to stop Wrangler helping. Without it, `wrangler deploy`
+detects "Next.js", assumes a server build in `.next`, and installs the
+OpenNext adapter — which then dies looking for `.next/standalone`, a directory
+a static export never produces. That is what broke the second deploy attempt.
+
+Cloudflare project settings:
 
 | Field | Value |
 |---|---|
 | Build command | `npm run build` |
-| Output directory | `out` |
+| Deploy command | `npx wrangler deploy` |
 | Env var | `NODE_VERSION` = `22` |
+
+Locally:
+
+```bash
+npm run preview    # build, then serve ./out through the real Worker runtime
+npm run deploy     # build and push to Cloudflare
+```
+
+`next start` no longer works and Next will tell you so — a static export has
+no server to start. Use `npm run preview`.
 
 ### Fonts
 

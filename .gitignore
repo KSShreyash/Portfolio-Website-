@@ -44,3 +44,7 @@ shots/
 # local tooling
 .next-start.log
 /.claude
+
+# cloudflare / wrangler
+.wrangler
+.dev.vars
