@@ -75,3 +75,47 @@ describe("extracted portfolio artwork", () => {
     expect(existsSync("design-references/harry-potter-portfolio-board.png")).toBe(true);
   });
 });
+
+describe("responsive variants", () => {
+  it("has every width the loader can hand back", async () => {
+    const { IMAGE_WIDTHS } = await import("@/lib/image-widths");
+    const entries = Object.entries(IMAGE_WIDTHS);
+    expect(entries.length).toBeGreaterThan(5);
+
+    for (const [src, widths] of entries) {
+      expect(widths.length).toBeGreaterThan(1);
+      for (const w of widths) {
+        const variant = `public${src.replace(/\.webp$/, `-${w}.webp`)}`;
+        expect(existsSync(variant), `missing ${variant}`).toBe(true);
+      }
+    }
+  });
+
+  it("only offers widths the source can actually fill", async () => {
+    const { IMAGE_WIDTHS } = await import("@/lib/image-widths");
+    for (const [src, widths] of Object.entries(IMAGE_WIDTHS)) {
+      const native = readFileSync(`public${src}`);
+      // The largest declared width is the master itself.
+      expect(Math.max(...widths)).toBe(webpSize(native)[0]);
+    }
+  });
+
+  it("resolves a request to the nearest width at or above it", async () => {
+    const { default: loader } = await import("@/lib/image-loader");
+    const src = "/images/portfolio/hogwarts-hero.webp";
+    expect(loader({ src, width: 480 })).toBe(
+      "/images/portfolio/hogwarts-hero-480.webp",
+    );
+    expect(loader({ src, width: 800 })).toBe(
+      "/images/portfolio/hogwarts-hero-900.webp",
+    );
+    // Beyond the largest variant, fall back to the master.
+    expect(loader({ src, width: 9999 })).toBe(
+      "/images/portfolio/hogwarts-hero-1672.webp",
+    );
+    // Unknown paths pass through untouched.
+    expect(loader({ src: "/images/nope.webp", width: 100 })).toBe(
+      "/images/nope.webp",
+    );
+  });
+});

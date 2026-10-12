@@ -10,6 +10,13 @@ import { GithubIcon } from "@/components/ui/BrandIcons";
 import { Corner } from "@/components/ui/Ornament";
 import type { CaseStudy } from "@/lib/types";
 
+/**
+ * Only the two slugs with a written case study exist. Anything else is a 404
+ * rather than a server-rendered miss, which is both correct and what a static
+ * export requires.
+ */
+export const dynamicParams = false;
+
 /** Only projects with a written case study get a page. */
 export function generateStaticParams() {
   return projects.filter((p) => p.caseStudy).map((p) => ({ slug: p.slug }));

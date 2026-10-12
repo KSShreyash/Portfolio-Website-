@@ -43,7 +43,6 @@ export function Monogram({
       quality={88}
       className={cn("h-auto w-auto select-none", className)}
       style={{ width: size, height: "auto" }}
-      priority={size >= 100}
     />
   );
 }

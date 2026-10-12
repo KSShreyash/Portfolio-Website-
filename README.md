@@ -149,6 +149,43 @@ bash scripts/preview.sh --skip-build --reduced       # emulate reduced motion
 
 Set `CHROME_PATH` if Chrome is somewhere non-standard.
 
+## Deploying
+
+The site is a **static export** — `npm run build` writes `out/`, which any
+static host can serve. There is no server, no API routes and no runtime.
+
+Cloudflare Pages settings:
+
+| Field | Value |
+|---|---|
+| Build command | `npm run build` |
+| Output directory | `out` |
+| Env var | `NODE_VERSION` = `22` |
+
+### Images without an optimiser
+
+A static host cannot run Next's image optimiser — it needs `sharp`, a native
+binary. Instead `scripts/extract_assets.py` pre-generates every width the site
+can ask for, and `src/lib/image-loader.ts` resolves a request to the nearest
+one at or above it.
+
+The widths in `images.deviceSizes` / `images.imageSizes` (next.config.ts) must
+stay in step with `BACKDROP_WIDTHS` / `MARK_WIDTHS` in the script. Next stamps
+the width it *asked* for into the srcset `w` descriptor, so if the loader has
+to round up to a bigger file the descriptor under-reports it and browsers
+over-fetch. `src/test/assets.test.ts` fails if a declared width has no file.
+
+Measured on the exported site, served from disk:
+
+| | images | total |
+|---|---|---|
+| Phone 390 @2x | 894 KB | 2.1 MB |
+| Laptop 1440 @1x | 1095 KB | 2.3 MB |
+
+Against 2487 KB of images with no loader at all. No variant is ever smaller
+than the screen needs, and all of them are cut from the original PNGs rather
+than re-compressed, so nothing is softer than the source.
+
 ## Still needs your input
 
 1. **Production domain.** No canonical URL or `metadataBase` is set, because
